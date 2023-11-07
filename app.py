@@ -272,23 +272,25 @@ if source_radio == 'Browser File':
                 st.error(ex)
 
         with col2:
-            if st.sidebar.button('Detect Objects'):
-                res = model.predict(uploaded_image, conf=confidence)
-                boxes = res[0].boxes
-                res_plotted = res[0].plot()[:, :, ::-1]
-                st.image(res_plotted, caption='Detected Image', use_column_width=True)
-                try:
-                    with st.expander("Detection Results"):
-                        for box in boxes:
-                            st.write(box.data)
-                except Exception as ex:
-                    st.write("No image is uploaded yet!")
+            if source_img is not None:
+                if st.sidebar.button('Detect Objects'):
+                    res = model.predict(uploaded_image, conf=confidence)
+                    boxes = res[0].boxes
+                    res_plotted = res[0].plot()[:, :, ::-1]
+                    st.image(res_plotted, caption='Detected Image', use_column_width=True)
+                    try:
+                        with st.expander("Detection Results"):
+                            for box in boxes:
+                                st.write(box.data)
+                    except Exception as ex:
+                        st.write("No image is uploaded yet!")
 
 elif source_radio == 'YouTube':
     youtube_link = st.text_input("Enter YouTube Video URL")
     if st.sidebar.button('Detect Objects'):
         if youtube_link:
             try:
+                # Updated play_youtube_video function to accept confidence and model
                 helper.play_youtube_video(confidence, model, youtube_link)
             except Exception as ex:
                 st.error("Error occurred while processing the YouTube video.")
