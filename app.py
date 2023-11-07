@@ -239,7 +239,7 @@ st.title("Object Detection using YOLOv8")
 st.sidebar.header("ML Model Config")
 
 # Model Options
-model_type = st.sidebar.radio("Select Task", ['Detection'])  # Removed 'Segmentation' option
+model_type = st.sidebar.radio("Select Task", ['Detection'])
 confidence = float(st.sidebar.slider("Select Model Confidence", 25, 100, 40)) / 100
 
 # Selecting Detection Or Segmentation
@@ -254,36 +254,30 @@ except Exception as ex:
     st.error(ex)
 
 st.sidebar.header("Image/Video Config")
-source_radio = st.sidebar.radio("Select Source", ['Browser File', 'YouTube'])  # Updated source options
+source_radio = st.sidebar.radio("Select Source", ['Browser File', 'YouTube'])
 source_img = None
 
 if source_radio == 'Browser File':
     source_img = st.sidebar.file_uploader("Upload an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp', 'mp4'))
-
-    col1, col2 = st.columns(2)
-
-    with col1:
+    if source_img:
         try:
-            if source_img is not None:
-                uploaded_image = PIL.Image.open(source_img)
-                st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
+            uploaded_image = PIL.Image.open(source_img)
+            st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
         except Exception as ex:
             st.error("Error occurred while opening the image.")
             st.error(ex)
 
-    with col2:
-        if source_img is not None:
-            if st.sidebar.button('Detect Objects'):
-                res = model.predict(uploaded_image, conf=confidence)
-                boxes = res[0].boxes
-                res_plotted = res[0].plot()[:, :, ::-1]
-                st.image(res_plotted, caption='Detected Image', use_column_width=True)
-                try:
-                    with st.expander("Detection Results"):
-                        for box in boxes:
-                            st.write(box.data)
-                except Exception as ex:
-                    st.write("No image is uploaded yet!")
+    if st.sidebar.button('Detect Objects') and source_img:
+        res = model.predict(uploaded_image, conf=confidence)
+        boxes = res[0].boxes
+        res_plotted = res[0].plot()[:, :, ::-1]
+        st.image(res_plotted, caption='Detected Image', use_column_width=True)
+        try:
+            with st.expander("Detection Results"):
+                for box in boxes:
+                    st.write(box.data)
+        except Exception as ex:
+            st.write("No image is uploaded yet!")
 
 elif source_radio == 'YouTube':
     youtube_link = st.text_input("Enter YouTube Video URL")
@@ -297,4 +291,3 @@ elif source_radio == 'YouTube':
 
 else:
     st.error("Please select a valid source type!")
-
